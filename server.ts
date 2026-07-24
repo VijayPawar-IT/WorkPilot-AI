@@ -36,6 +36,40 @@ function getGeminiClient(): GoogleGenAI {
   return aiInstance;
 }
 
+// Models tried in order. If the primary model is overloaded (503/UNAVAILABLE)
+// or rate-limited (429), we automatically retry and fall back to the next one
+// instead of surfacing a broken UI to the user.
+const MODEL_FALLBACK_CHAIN = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+
+function isRetryableError(error: any): boolean {
+  const message = String(error?.message || error || '');
+  return /503|UNAVAILABLE|429|RESOURCE_EXHAUSTED|overloaded|high demand/i.test(message);
+}
+
+async function generateContentWithFallback(
+  ai: GoogleGenAI,
+  params: Omit<Parameters<GoogleGenAI['models']['generateContent']>[0], 'model'>,
+  models: string[] = MODEL_FALLBACK_CHAIN,
+  retriesPerModel = 2
+) {
+  let lastError: any;
+  for (const model of models) {
+    for (let attempt = 0; attempt < retriesPerModel; attempt++) {
+      try {
+        return await ai.models.generateContent({ ...params, model });
+      } catch (error: any) {
+        lastError = error;
+        if (!isRetryableError(error)) {
+          throw error;
+        }
+        console.warn(`Model ${model} attempt ${attempt + 1} failed (retryable):`, error.message);
+        await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+      }
+    }
+  }
+  throw lastError;
+}
+
 // 1. AI MODULE: Career Assistant Roadmap & Skill Gaps
 app.post('/api/ai/career-roadmap', async (req, res) => {
   try {
@@ -51,8 +85,7 @@ app.post('/api/ai/career-roadmap', async (req, res) => {
 
     Please provide a structured response analysis matching the JSON schema.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+    const response = await generateContentWithFallback(ai, {
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -125,8 +158,7 @@ app.post('/api/ai/analyze-resume', async (req, res) => {
 
     Provide a precise review scoring, skill matching, bullet enhancements, and interview tips.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+    const response = await generateContentWithFallback(ai, {
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -166,8 +198,7 @@ app.post('/api/ai/meeting-summary', async (req, res) => {
 
     Return a beautiful formatted summary, the last discussed topic context, and next actionable items assigned to roles/methods.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+    const response = await generateContentWithFallback(ai, {
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -208,8 +239,7 @@ app.post('/api/ai/write-email', async (req, res) => {
 
     Design a high-quality email template including a professional Subject Line and clean layout.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+    const response = await generateContentWithFallback(ai, {
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -250,8 +280,7 @@ app.post('/api/ai/generate-journal', async (req, res) => {
 
     Draft a concise, polished work journal entry detailing performance reflections, learning metrics, and positive feedback points.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+    const response = await generateContentWithFallback(ai, {
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -305,7 +334,6 @@ app.post('/api/ai/chat-assistant', async (req, res) => {
     const lastMessage = formattedHistory.pop() || { parts: [{ text: 'Hello!' }] };
 
     const chatInput = {
-      model: 'gemini-3.5-flash',
       contents: [
         ...formattedHistory,
         { role: lastMessage.role, parts: lastMessage.parts }
@@ -316,7 +344,7 @@ app.post('/api/ai/chat-assistant', async (req, res) => {
       }
     };
 
-    const response = await ai.models.generateContent(chatInput);
+    const response = await generateContentWithFallback(ai, chatInput);
     res.json({ success: true, message: response.text });
   } catch (error: any) {
     console.error('AI Mentor error:', error);

@@ -55,6 +55,10 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(true);
   const [currentTab, setCurrentTab] = useState<string>('dashboard');
   const [appState, setAppState] = useState<WorkPilotState>(initialWorkPilotState);
+
+  // Subscription / Upgrade Hub selection state
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'yearly' | null>(null);
+  const [activePlan, setActivePlan] = useState<'free' | 'monthly' | 'yearly'>('free');
   
   // Custom User details for initialization / career customization
   const [userProfile, setUserProfile] = useState({
@@ -558,7 +562,7 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen font-sans ${darkMode ? 'bg-slate-950 text-slate-105' : 'bg-slate-50 text-slate-900'} transition-all duration-300`}>
+    <div className={`min-h-screen font-sans ${darkMode ? 'bg-slate-950 text-slate-100' : 'bg-slate-50 text-slate-900'} transition-all duration-300`}>
       
       {/* 1. TOP DENTIST GLASS HEADER */}
       <header className="sticky top-0 z-40 border-b border-white/10 dark:border-slate-800/80 bg-white/70 dark:bg-slate-950/70 backdrop-blur-md px-6 py-4 flex items-center justify-between shadow-sm">
@@ -602,7 +606,7 @@ export default function App() {
           {/* Theme Toggler */}
           <button
             onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-xl hover:bg-slate-105 dark:hover:bg-slate-900 border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition-all cursor-pointer"
+            className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition-all cursor-pointer"
             id="theme-toggler"
           >
             {darkMode ? <Sun className="h-5 w-5 text-yellow-400" /> : <Moon className="h-5 w-5 text-slate-600" />}
@@ -612,7 +616,7 @@ export default function App() {
           <div className="relative">
             <button
               onClick={() => setNotifMenuOpen(!notifMenuOpen)}
-              className="p-2 rounded-xl hover:bg-slate-105 dark:hover:bg-slate-900 border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition-all relative cursor-pointer"
+              className="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 border border-transparent hover:border-slate-300 dark:hover:border-slate-800 transition-all relative cursor-pointer"
               id="notif-btn"
             >
               <Bell className="h-5 w-5" />
@@ -644,7 +648,7 @@ export default function App() {
                     <div 
                       key={n.id} 
                       onClick={() => handleMarkNotifRead(n.id)}
-                      className={`p-2 rounded-lg cursor-pointer transition-colors ${n.isRead ? 'bg-transparent text-slate-500' : 'bg-violet-500/10 text-slate-105'}`}
+                      className={`p-2 rounded-lg cursor-pointer transition-colors ${n.isRead ? 'bg-transparent text-slate-500' : 'bg-violet-500/10 text-slate-100'}`}
                     >
                       <div className="flex justify-between items-start font-medium pb-1">
                         <span className="capitalize text-violet-500 font-bold">[{n.type}] {n.title}</span>
@@ -875,7 +879,7 @@ export default function App() {
                     
                     {/* Embedded Actionable tips */}
                     <div className="mt-4 flex flex-wrap gap-2">
-                      <span className="text-[10px] font-mono px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-605">
+                      <span className="text-[10px] font-mono px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-600">
                         💡 Tip: Re-verify PF savings logs before compiling compensation.
                       </span>
                     </div>
@@ -892,7 +896,7 @@ export default function App() {
                       {appState.tasks.map(task => (
                         <div 
                           key={task.id} 
-                          className="p-3 bg-slate-105/50 dark:bg-slate-900/60 hover:bg-slate-105 dark:hover:bg-slate-900 transition-colors border border-transparent hover:border-slate-350 dark:hover:border-slate-800 rounded-xl flex items-center justify-between gap-3"
+                          className="p-3 bg-slate-100/50 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors border border-transparent hover:border-slate-400 dark:hover:border-slate-800 rounded-xl flex items-center justify-between gap-3"
                         >
                           <div className="flex items-center gap-3">
                             <button 
@@ -1091,7 +1095,7 @@ export default function App() {
                     <h3 className="text-[14px] font-bold font-display text-slate-900 dark:text-slate-100">Family & Household Reminders</h3>
                     <div className="space-y-2.5">
                       {appState.familyEvents.map(event => (
-                        <div key={event.id} className="p-3 bg-slate-200/30 dark:bg-slate-900/40 border border-slate-300 dark:border-slate-850 rounded-xl space-y-2 leading-relaxed">
+                        <div key={event.id} className="p-3 bg-slate-200/30 dark:bg-slate-900/40 border border-slate-300 dark:border-slate-900 rounded-xl space-y-2 leading-relaxed">
                           <div className="flex justify-between items-start">
                             <span className="text-xs font-semibold">{event.name}</span>
                             <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
@@ -1149,7 +1153,7 @@ export default function App() {
                 <div className="space-y-6">
                   
                   <div className="glass-panel p-5 space-y-4">
-                    <h3 className="text-[14px] font-bold font-display border-b border-slate-850 pb-2">1. Career Sync profile</h3>
+                    <h3 className="text-[14px] font-bold font-display border-b border-slate-900 pb-2">1. Career Sync profile</h3>
                     
                     <div className="space-y-3.5">
                       <div>
@@ -1158,7 +1162,7 @@ export default function App() {
                           type="text" 
                           value={userProfile.currentRole} 
                           onChange={(e) => setUserProfile({ ...userProfile, currentRole: e.target.value })}
-                          className="glass-input text-xs text-slate-105" 
+                          className="glass-input text-xs text-slate-100" 
                         />
                       </div>
 
@@ -1168,7 +1172,7 @@ export default function App() {
                           type="text" 
                           value={userProfile.targetRole} 
                           onChange={(e) => setUserProfile({ ...userProfile, targetRole: e.target.value })}
-                          className="glass-input text-xs text-slate-105" 
+                          className="glass-input text-xs text-slate-100" 
                         />
                       </div>
 
@@ -1179,7 +1183,7 @@ export default function App() {
                             type="text" 
                             value={userProfile.yearsExperience} 
                             onChange={(e) => setUserProfile({ ...userProfile, yearsExperience: e.target.value })}
-                            className="glass-input text-xs text-slate-105 text-center" 
+                            className="glass-input text-xs text-slate-100 text-center" 
                           />
                         </div>
                         <div className="col-span-2">
@@ -1188,7 +1192,7 @@ export default function App() {
                             type="text" 
                             value={userProfile.coreSkills} 
                             onChange={(e) => setUserProfile({ ...userProfile, coreSkills: e.target.value })}
-                            className="glass-input text-xs text-slate-105" 
+                            className="glass-input text-xs text-slate-100" 
                           />
                         </div>
                       </div>
@@ -1196,7 +1200,7 @@ export default function App() {
                       <button
                         onClick={handleGenerateRoadmap}
                         disabled={roadmapLoading}
-                        className="w-full mt-2 py-3 bg-gradient-to-r from-violet-605 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-xs text-white font-bold tracking-wider uppercase rounded-xl flex items-center justify-center gap-1.5"
+                        className="w-full mt-2 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-xs text-white font-bold tracking-wider uppercase rounded-xl flex items-center justify-center gap-1.5"
                       >
                         {roadmapLoading ? (
                           <>
@@ -1213,7 +1217,7 @@ export default function App() {
 
                   {/* ATS RESUME ANALYZER PANEL */}
                   <div className="glass-panel p-5 space-y-4">
-                    <h3 className="text-[14px] font-bold font-display border-b border-slate-850 pb-2">2. Intelligent ATS Resume Check</h3>
+                    <h3 className="text-[14px] font-bold font-display border-b border-slate-900 pb-2">2. Intelligent ATS Resume Check</h3>
                     <div className="space-y-3">
                       <div>
                         <label className="text-[10px] font-mono block text-slate-400 mb-1">PASTE EXPERIENCES / RESUME CONTENT</label>
@@ -1233,7 +1237,7 @@ export default function App() {
                           placeholder="e.g. Lead Software Architect at Tier-1, or VP of Platform Services"
                           value={resumeJobTarget}
                           onChange={(e) => setResumeJobTarget(e.target.value)}
-                          className="glass-input text-xs text-slate-105"
+                          className="glass-input text-xs text-slate-100"
                         />
                       </div>
 
@@ -1282,24 +1286,24 @@ export default function App() {
                         <div className="p-3 bg-violet-500/5 border border-violet-500/10 rounded-xl leading-relaxed">
                           <p className="font-mono text-[10px] text-slate-400">TARGET DESIGNATION</p>
                           <h4 className="text-sm font-extrabold text-violet-400 mt-0.5">{customRoadmap.targetRole}</h4>
-                          <p className="mt-1 font-semibold">Recommended Horizon: <span className="text-slate-105 underline">{customRoadmap.timeline}</span></p>
+                          <p className="mt-1 font-semibold">Recommended Horizon: <span className="text-slate-100 underline">{customRoadmap.timeline}</span></p>
                         </div>
 
                         {/* Steps Roadmap map */}
                         <div className="space-y-3.5">
-                          <h4 className="font-bold text-slate-450 border-b border-slate-800 pb-1 flex items-center gap-1.5">
+                          <h4 className="font-bold text-slate-500 border-b border-slate-800 pb-1 flex items-center gap-1.5">
                             <Check className="h-4 w-4 text-emerald-500" /> STEPPED IMPLEMENTATION MILESTONES
                           </h4>
                           
                           {customRoadmap.steps?.map((step: any, idx: number) => (
-                            <div key={idx} className="p-3 bg-slate-900 border border-slate-850 rounded-xl space-y-1.5 leading-relaxed">
+                            <div key={idx} className="p-3 bg-slate-900 border border-slate-900 rounded-xl space-y-1.5 leading-relaxed">
                               <span className="text-[10px] font-mono text-violet-500 font-bold">PHASE {idx + 1}: {step.phase}</span>
                               
                               <div className="mt-1">
                                 <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Critical Skills targeted</span>
                                 <div className="flex flex-wrap gap-1.5 mt-0.5">
                                   {step.skillsRequired?.map((sk: string, i: number) => (
-                                    <span key={i} className="text-[9px] bg-slate-820 text-slate-300 px-1.5 py-0.5 rounded font-mono">
+                                    <span key={i} className="text-[9px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono">
                                       {sk}
                                     </span>
                                   ))}
@@ -1308,7 +1312,7 @@ export default function App() {
 
                               <div className="mt-1.5">
                                 <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">Recommended Transition Steps</span>
-                                <ul className="list-disc pl-3.5 text-[10.5px] mt-0.5 text-slate-350 space-y-0.5">
+                                <ul className="list-disc pl-3.5 text-[10.5px] mt-0.5 text-slate-400 space-y-0.5">
                                   {step.actions?.map((act: string, i: number) => <li key={i}>{act}</li>)}
                                 </ul>
                               </div>
@@ -1319,13 +1323,13 @@ export default function App() {
                         {/* Skill gap analysis highlights */}
                         {customRoadmap.skillGaps && (
                           <div className="space-y-2.5">
-                            <h4 className="font-bold text-slate-450 border-b border-slate-800 pt-2 pb-1">IDENTIFIED SKILL GAPS MATRIX</h4>
+                            <h4 className="font-bold text-slate-500 border-b border-slate-800 pt-2 pb-1">IDENTIFIED SKILL GAPS MATRIX</h4>
                             <div className="grid grid-cols-1 gap-2">
                               {customRoadmap.skillGaps.map((gap: any, idx: number) => (
-                                <div key={idx} className="p-2.5 bg-slate-900 border border-slate-850 rounded-lg flex justify-between items-center text-xs">
+                                <div key={idx} className="p-2.5 bg-slate-900 border border-slate-900 rounded-lg flex justify-between items-center text-xs">
                                   <div>
                                     <span className="font-semibold block text-slate-200">{gap.skill}</span>
-                                    <span className="text-[9.5px] text-slate-450">Recs: {gap.recommendations?.[0] || 'Observe labs'}</span>
+                                    <span className="text-[9.5px] text-slate-500">Recs: {gap.recommendations?.[0] || 'Observe labs'}</span>
                                   </div>
                                   <span className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${
                                     gap.gapLevel === 'high' ? 'bg-rose-500/15 text-rose-400' : 'bg-yellow-500/15 text-yellow-500'
@@ -1343,7 +1347,7 @@ export default function App() {
                           <div className="p-3 bg-amber-500/5 border border-amber-500/15 rounded-xl space-y-1.5 leading-relaxed">
                             <span className="font-bold text-amber-500 font-display">Salary & Progression Negotiation Parameters</span>
                             <p className="font-mono text-[10.5px]">Expected Tiers range: <strong className="text-slate-100">{customRoadmap.salaryInsight.range}</strong></p>
-                            <div className="text-[10px] text-slate-350 italic">
+                            <div className="text-[10px] text-slate-400 italic">
                               * {customRoadmap.salaryInsight.negotiatingTips?.[0] || 'Cite specific database migrations done'}
                             </div>
                           </div>
@@ -1356,7 +1360,7 @@ export default function App() {
                       <div className="space-y-4 animate-fade-in text-xs leading-relaxed">
                         <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-xl flex items-center justify-between">
                           <div>
-                            <span className="text-[10px] font-mono text-slate-450">ATS RANGER MATCH</span>
+                            <span className="text-[10px] font-mono text-slate-500">ATS RANGER MATCH</span>
                             <h4 className="text-2xl font-extrabold text-emerald-500 mt-1">{resumeResult.atsScore}% Score</h4>
                           </div>
                           <Award className="h-10 w-10 text-emerald-500" />
@@ -1364,7 +1368,7 @@ export default function App() {
 
                         <div>
                           <span className="font-bold text-slate-300 block mb-1">ATS STRENGTHS</span>
-                          <ul className="list-disc pl-4.5 space-y-1 text-slate-350 text-[11px]">
+                          <ul className="list-disc pl-4.5 space-y-1 text-slate-400 text-[11px]">
                             {resumeResult.strengths?.map((str: string, i: number) => <li key={i}>{str}</li>)}
                           </ul>
                         </div>
@@ -1382,18 +1386,18 @@ export default function App() {
 
                         <div className="pt-2 border-t border-slate-800">
                           <span className="font-bold text-violet-400 block mb-1">SUGGESTED STAR BULLET IMPROVEMENTS</span>
-                          <div className="space-y-2 text-[10px] text-slate-350">
+                          <div className="space-y-2 text-[10px] text-slate-400">
                             {resumeResult.suggestedBulletPoints?.map((b: string, i: number) => (
-                              <p key={i} className="p-2 bg-slate-900 border border-slate-850 rounded-lg italic">
+                              <p key={i} className="p-2 bg-slate-900 border border-slate-900 rounded-lg italic">
                                 "{b}"
                               </p>
                             ))}
                           </div>
                         </div>
 
-                        <div className="p-3 bg-violet-650/5 border border-violet-800 rounded-xl">
+                        <div className="p-3 bg-violet-700/5 border border-violet-800 rounded-xl">
                           <span className="font-bold text-slate-100 block mb-1">INTERVIEW STRATEGY</span>
-                          <p className="text-[10.5px] text-slate-350">{resumeResult.interviewPreparationTips?.[0]}</p>
+                          <p className="text-[10.5px] text-slate-400">{resumeResult.interviewPreparationTips?.[0]}</p>
                         </div>
                       </div>
                     )}
@@ -1469,7 +1473,7 @@ export default function App() {
                             }));
                             showAlert('KPI valuation incremented!', 'success');
                           }}
-                          className="px-2 py-1 text-xs bg-violet-605 text-white rounded hover:bg-violet-700 font-bold"
+                          className="px-2 py-1 text-xs bg-violet-600 text-white rounded hover:bg-violet-700 font-bold"
                         >
                           +5
                         </button>
@@ -1478,13 +1482,13 @@ export default function App() {
 
                     {/* Progress Slider representation */}
                     <div>
-                      <div className="flex justify-between text-xs text-slate-350 mb-1">
+                      <div className="flex justify-between text-xs text-slate-400 mb-1">
                         <span>Milestone Status Tracker</span>
                         <span className="font-mono font-bold text-indigo-400">
                           {goal.currentValue} {goal.unit} / {goal.targetValue} {goal.unit}
                         </span>
                       </div>
-                      <div className="w-full bg-slate-105 dark:bg-slate-900 h-3 border border-slate-250 dark:border-slate-800/80 rounded-full overflow-hidden">
+                      <div className="w-full bg-slate-100 dark:bg-slate-900 h-3 border border-slate-300 dark:border-slate-800/80 rounded-full overflow-hidden">
                         <div 
                           className="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-305"
                           style={{ width: `${(goal.currentValue / goal.targetValue) * 100}%` }}
@@ -1494,12 +1498,12 @@ export default function App() {
 
                     {/* Boss alignment check insights */}
                     {goal.bossFeedback && (
-                      <div className="p-3.5 bg-slate-105/55 dark:bg-slate-950/70 border border-slate-200/50 dark:border-slate-800 rounded-xl leading-relaxed text-xs">
+                      <div className="p-3.5 bg-slate-100/55 dark:bg-slate-950/70 border border-slate-200/50 dark:border-slate-800 rounded-xl leading-relaxed text-xs">
                         <div className="flex items-center gap-1 font-semibold text-slate-400 mb-1">
                           <Users className="h-3.5 w-3.5 text-violet-500" />
                           <span>Supervisor Feedback Audit</span>
                         </div>
-                        <p className="italic text-slate-650 dark:text-slate-300">"{goal.bossFeedback}"</p>
+                        <p className="italic text-slate-700 dark:text-slate-300">"{goal.bossFeedback}"</p>
                       </div>
                     )}
                   </div>
@@ -1518,7 +1522,7 @@ export default function App() {
                 {/* MEETINGS SIDE CHANGER */}
                 <div className="lg:col-span-1 space-y-4">
                   <div className="glass-panel p-5 space-y-3">
-                    <h3 className="text-sm font-semibold font-display border-b border-slate-850 pb-2">Active Board Meetings</h3>
+                    <h3 className="text-sm font-semibold font-display border-b border-slate-900 pb-2">Active Board Meetings</h3>
                     <div className="space-y-2">
                       {appState.meetings.map(meet => (
                         <div 
@@ -1526,8 +1530,8 @@ export default function App() {
                           onClick={() => setEditingMeetingId(meet.id)}
                           className={`p-3.5 rounded-xl cursor-pointer border transition-all ${
                             editingMeetingId === meet.id 
-                              ? 'bg-violet-605 text-white border-violet-500' 
-                              : 'bg-slate-900 border-slate-850 text-slate-400 hover:border-slate-700'
+                              ? 'bg-violet-600 text-white border-violet-500' 
+                              : 'bg-slate-900 border-slate-900 text-slate-400 hover:border-slate-700'
                           }`}
                         >
                           <div className="flex justify-between items-start font-bold">
@@ -1570,13 +1574,13 @@ export default function App() {
 
                     {meetingSummaryResult && (
                       <div className="space-y-4 p-4.5 bg-slate-900 border border-slate-800 rounded-xl text-xs leading-relaxed animate-fade-in">
-                        <div className="border-b border-slate-850 pb-2">
+                        <div className="border-b border-slate-900 pb-2">
                           <span className="text-[9px] font-mono text-cyan-400 tracking-wider block font-bold">AI EXECUTIVE SUMMARY</span>
-                          <p className="mt-1 text-slate-205">{meetingSummaryResult.summary}</p>
+                          <p className="mt-1 text-slate-200">{meetingSummaryResult.summary}</p>
                         </div>
 
                         {meetingSummaryResult.lastDiscussion && (
-                          <div className="pb-2 border-b border-slate-850">
+                          <div className="pb-2 border-b border-slate-900">
                             <span className="text-[9px] font-mono text-violet-400 tracking-wider block font-bold">LAST KEY ISSUE DISCUSSED</span>
                             <p className="mt-1 text-slate-300 italic">"{meetingSummaryResult.lastDiscussion}"</p>
                           </div>
@@ -1584,15 +1588,15 @@ export default function App() {
 
                         <div className="pb-2">
                           <span className="text-[9px] font-mono text-emerald-400 tracking-wider block font-bold">GENERATED NEXT ACTION ITEMS</span>
-                          <ul className="list-disc pl-4 space-y-0.5 mt-1.5 text-slate-350">
+                          <ul className="list-disc pl-4 space-y-0.5 mt-1.5 text-slate-400">
                             {meetingSummaryResult.nextActions?.map((act: string, idx: number) => (
-                              <li key={idx} className="hover:text-slate-105 transition-colors">{act}</li>
+                              <li key={idx} className="hover:text-slate-100 transition-colors">{act}</li>
                             ))}
                           </ul>
                         </div>
 
                         {meetingSummaryResult.emailDraft && (
-                          <div className="p-3 bg-slate-950 border border-slate-850 rounded-lg text-[10px]">
+                          <div className="p-3 bg-slate-950 border border-slate-900 rounded-lg text-[10px]">
                             <div className="flex justify-between items-center text-slate-500 mb-1">
                               <span>TEAM FOLLOW-UP EMAIL DRAFT</span>
                               <button 
@@ -1625,7 +1629,7 @@ export default function App() {
           {currentTab === 'vault' && (
             <div className="space-y-6">
               
-              <div className="glass-panel p-6 bg-gradient-to-tr from-slate-900 to-indigo-950/20 text-slate-105 border border-slate-800">
+              <div className="glass-panel p-6 bg-gradient-to-tr from-slate-900 to-indigo-950/20 text-slate-100 border border-slate-800">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2 className="text-xl font-bold font-display flex items-center gap-1.5 text-violet-400">
@@ -1636,7 +1640,7 @@ export default function App() {
                       Your offer letters, payslips, national IDs, and credentials are locally hashed and stored dynamically using WorkPilot Secure protocols.
                     </p>
                   </div>
-                  <span className="text-[10px] bg-slate-800 border border-slate-700 px-3 py-1 rounded font-mono uppercase text-slate-350 font-bold">
+                  <span className="text-[10px] bg-slate-800 border border-slate-700 px-3 py-1 rounded font-mono uppercase text-slate-400 font-bold">
                     AES-256 Enabled
                   </span>
                 </div>
@@ -1648,7 +1652,7 @@ export default function App() {
                 {/* 1. UPLOAD DECRYPT COMPONENT */}
                 <div className="lg:col-span-1 space-y-4">
                   <div className="glass-panel p-5 space-y-4">
-                    <h3 className="text-sm font-semibold font-display border-b border-slate-850 pb-2">Vault upload portal</h3>
+                    <h3 className="text-sm font-semibold font-display border-b border-slate-900 pb-2">Vault upload portal</h3>
                     
                     <form onSubmit={handleEncryptUpload} className="space-y-3.5">
                       <div>
@@ -1671,7 +1675,7 @@ export default function App() {
                         <select 
                           value={docCategory}
                           onChange={(e: any) => setDocCategory(e.target.value)}
-                          className="glass-input text-xs text-slate-105"
+                          className="glass-input text-xs text-slate-100"
                         >
                           <option value="letter">Promotion / Offer Letters</option>
                           <option value="salary">Tax Slips / Comp Slips</option>
@@ -1683,7 +1687,7 @@ export default function App() {
 
                       <button 
                         type="submit"
-                        className="w-full py-2 bg-violet-605 text-white hover:bg-violet-700 text-xs font-bold rounded-lg"
+                        className="w-full py-2 bg-violet-600 text-white hover:bg-violet-700 text-xs font-bold rounded-lg"
                       >
                         Secure Encrypt & Upload
                       </button>
@@ -1698,18 +1702,18 @@ export default function App() {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {appState.documents.map((doc) => (
-                        <div key={doc.id} className="p-4 bg-slate-900 border border-slate-850 hover:border-violet-500/30 rounded-xl space-y-3">
+                        <div key={doc.id} className="p-4 bg-slate-900 border border-slate-900 hover:border-violet-500/30 rounded-xl space-y-3">
                           <div className="flex justify-between items-start">
                             <div className="flex items-center gap-2">
                               <FileText className="h-7 w-7 text-violet-500" />
                               <div>
                                 <h4 className="text-xs font-bold text-slate-100">{doc.name}</h4>
-                                <span className="text-[9px] uppercase tracking-wider text-slate-505 font-medium">{doc.category}</span>
+                                <span className="text-[9px] uppercase tracking-wider text-slate-500 font-medium">{doc.category}</span>
                               </div>
                             </div>
                           </div>
 
-                          <div className="flex justify-between items-center pt-2 border-t border-slate-800 text-[10px] text-slate-450">
+                          <div className="flex justify-between items-center pt-2 border-t border-slate-800 text-[10px] text-slate-500">
                             <span>Uploaded: {doc.uploadDate} ({doc.fileSize})</span>
                             <button
                               onClick={() => triggerDecryptDoc(doc)}
@@ -1734,7 +1738,7 @@ export default function App() {
                         
                         {!vaultUnlocked ? (
                           <div className="space-y-2">
-                            <p className="text-[10.5px] text-slate-400">Enter secure master PIN to decrypt credentials (preset is <strong className="text-slate-101">1234</strong>):</p>
+                            <p className="text-[10.5px] text-slate-400">Enter secure master PIN to decrypt credentials (preset is <strong className="text-slate-100">1234</strong>):</p>
                             <div className="flex gap-2">
                               <input 
                                 type="password" 
@@ -1791,7 +1795,7 @@ export default function App() {
                   <div className="glass-panel p-5 space-y-4">
                     <h3 className="text-sm font-semibold font-display pb-1 border-b border-slate-800">Salary structure metrics</h3>
                     
-                    <div className="space-y-3.5 text-xs text-slate-350">
+                    <div className="space-y-3.5 text-xs text-slate-400">
                       <div className="flex justify-between p-2.5 bg-slate-900 rounded-lg">
                         <span>Basic Base Expansion</span>
                         <strong className="text-slate-100">${appState.salary.basic}</strong>
@@ -1819,12 +1823,12 @@ export default function App() {
                     <h3 className="text-sm font-semibold font-display border-b border-slate-800 pb-1">Historical increments</h3>
                     <div className="space-y-2.5">
                       {appState.increments.map((inc, i) => (
-                        <div key={i} className="p-3 bg-slate-900/60 border border-slate-850 rounded-xl flex justify-between items-center text-xs">
+                        <div key={i} className="p-3 bg-slate-900/60 border border-slate-900 rounded-xl flex justify-between items-center text-xs">
                           <div>
                             <span className="font-semibold block text-slate-100">{inc.date}</span>
                             <span className="text-[10px] text-slate-500">Base: ${inc.oldSalary} → ${inc.newSalary}</span>
                           </div>
-                          <span className="text-[10.5px] font-mono text-emerald-450 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
+                          <span className="text-[10.5px] font-mono text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded">
                             +{inc.percentage}% Raise
                           </span>
                         </div>
@@ -1845,7 +1849,7 @@ export default function App() {
                           type="number"
                           value={simulatedGross}
                           onChange={(e) => setSimulatedGross(Number(e.target.value))}
-                          className="glass-input text-xs font-semibold text-slate-105"
+                          className="glass-input text-xs font-semibold text-slate-100"
                         />
                       </div>
                       <div>
@@ -1854,12 +1858,12 @@ export default function App() {
                           type="number"
                           value={simulatedInvestments}
                           onChange={(e) => setSimulatedInvestments(Number(e.target.value))}
-                          className="glass-input text-xs font-semibold text-slate-105"
+                          className="glass-input text-xs font-semibold text-slate-100"
                         />
                       </div>
                     </div>
 
-                    <div className="p-4 bg-violet-650/5 border border-violet-800 rounded-xl flex items-center justify-between gap-4">
+                    <div className="p-4 bg-violet-700/5 border border-violet-800 rounded-xl flex items-center justify-between gap-4">
                       <div>
                         <span className="text-[10px] font-mono text-violet-400 font-bold uppercase tracking-wider block">Estimated Tax Valuation</span>
                         <h4 className="text-3xl font-extrabold text-violet-400 mt-1">${estimatedTax}</h4>
@@ -1869,18 +1873,18 @@ export default function App() {
                       </div>
                       <div className="text-right">
                         <span className="text-[10px] font-mono text-slate-400 block font-bold">NET TAKE-HOME</span>
-                        <p className="text-xl font-extrabold text-slate-105 mt-1">${simulatedGross - estimatedTax}</p>
+                        <p className="text-xl font-extrabold text-slate-100 mt-1">${simulatedGross - estimatedTax}</p>
                       </div>
                     </div>
 
                     {/* SIP and EMI investments tracker inside same block */}
                     <div className="space-y-3 pt-3 border-t border-slate-800">
-                      <span className="text-[11px] font-bold text-slate-450 block uppercase tracking-wider">SIP / FD & Assets commitments</span>
+                      <span className="text-[11px] font-bold text-slate-500 block uppercase tracking-wider">SIP / FD & Assets commitments</span>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {appState.assets.map(as => (
-                          <div key={as.id} className="p-3 bg-slate-900 border border-slate-850 rounded-xl text-xs flex justify-between items-center leading-relaxed">
+                          <div key={as.id} className="p-3 bg-slate-900 border border-slate-900 rounded-xl text-xs flex justify-between items-center leading-relaxed">
                             <div>
-                              <span className="font-semibold block text-slate-101">{as.name}</span>
+                              <span className="font-semibold block text-slate-100">{as.name}</span>
                               <span className="text-[10.5px] text-slate-500">Value: ${as.amount}</span>
                             </div>
                             {as.monthlyCommitment && (
@@ -1910,7 +1914,7 @@ export default function App() {
                   <Heart className="h-6 w-6 text-emerald-500" />
                   <div>
                     <h2 className="text-base font-bold font-display text-emerald-500">Corporate Health indicators planner</h2>
-                    <p className="text-xs text-slate-650 dark:text-slate-400 mt-1">
+                    <p className="text-xs text-slate-700 dark:text-slate-400 mt-1">
                       Sedentary routines demand constant physiological sync. Re-verify water logs, scheduling appointments, and vision check reminders.
                     </p>
                   </div>
@@ -1922,8 +1926,8 @@ export default function App() {
                 
                 {/* WATER DIAL OVERVIEW */}
                 <div className="glass-panel p-5 space-y-4">
-                  <h3 className="text-sm font-semibold font-display border-b border-slate-850 pb-2">1. Fluid metrics dashboard</h3>
-                  <div className="text-center py-7 bg-slate-900 rounded-xl border border-slate-850 relative overflow-hidden">
+                  <h3 className="text-sm font-semibold font-display border-b border-slate-900 pb-2">1. Fluid metrics dashboard</h3>
+                  <div className="text-center py-7 bg-slate-900 rounded-xl border border-slate-900 relative overflow-hidden">
                     <div className="h-28 w-28 bg-blue-500/10 rounded-full mx-auto flex flex-col justify-center items-center border border-blue-500/20">
                       <span className="text-[10px] text-slate-500">DRUNK</span>
                       <span className="text-xl font-extrabold text-blue-400">{appState.health.waterMl}ml</span>
@@ -1954,7 +1958,7 @@ export default function App() {
                   <h3 className="text-sm font-semibold font-display pb-1 border-b border-slate-800">2. Scheduled specialist reviews</h3>
                   <div className="space-y-3">
                     {appState.health.appointments.map((ap, i) => (
-                      <div key={i} className="p-4 bg-slate-900 border border-slate-850 hover:border-violet-500/30 rounded-xl text-xs space-y-2">
+                      <div key={i} className="p-4 bg-slate-900 border border-slate-900 hover:border-violet-500/30 rounded-xl text-xs space-y-2">
                         <div className="flex justify-between items-start font-bold">
                           <span className="text-slate-100">{ap.desc}</span>
                           <span className={`text-[9px] font-mono uppercase px-2 py-0.5 rounded ${
@@ -1967,7 +1971,7 @@ export default function App() {
                           <span>Target Date: {ap.date}</span>
                           <button
                             onClick={() => showAlert('Appointment reminder synced with standard OS calendars!', 'success')}
-                            className="text-violet-505 font-bold hover:underline"
+                            className="text-violet-500 font-bold hover:underline"
                           >
                             Set Push Reminder
                           </button>
@@ -1986,12 +1990,12 @@ export default function App() {
           {currentTab === 'creator' && (
             <div className="space-y-6">
               
-              <div className="glass-panel p-6 bg-gradient-to-r from-violet-605/10 to-indigo-605/10 border border-violet-500/20">
+              <div className="glass-panel p-6 bg-gradient-to-r from-violet-600/10 to-indigo-600/10 border border-violet-500/20">
                 <div className="flex items-center gap-1.5 pb-1">
                   <Sparkles className="h-6 w-6 text-violet-500" />
                   <h2 className="text-lg font-bold font-display text-slate-900 dark:text-slate-100">Live AI Assistant Workspace</h2>
                 </div>
-                <p className="text-xs text-slate-650 dark:text-slate-400 leading-relaxed mt-0.5">
+                <p className="text-xs text-slate-700 dark:text-slate-400 leading-relaxed mt-0.5">
                   Compose high-impact executive level messages, analyze complete tasks to formulate automatic chronological journal logs, or carry out strategic workspace troubleshooting with memory.
                 </p>
               </div>
@@ -2006,7 +2010,7 @@ export default function App() {
                     
                     <div className="space-y-3 text-xs leading-relaxed">
                       <div>
-                        <label className="text-[10px] text-slate-450 font-bold block mb-1">SENDER & RECIPIENT</label>
+                        <label className="text-[10px] text-slate-500 font-bold block mb-1">SENDER & RECIPIENT</label>
                         <div className="grid grid-cols-2 gap-2">
                           <input 
                             type="text" 
@@ -2026,7 +2030,7 @@ export default function App() {
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-slate-440 font-bold block mb-1">INTENT & KEY CONTEXT</label>
+                        <label className="text-[10px] text-slate-400 font-bold block mb-1">INTENT & KEY CONTEXT</label>
                         <textarea
                           rows={3}
                           value={emailContext}
@@ -2036,7 +2040,7 @@ export default function App() {
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-slate-440 font-bold block mb-1">STRIKING KEY POINTS CITED</label>
+                        <label className="text-[10px] text-slate-400 font-bold block mb-1">STRIKING KEY POINTS CITED</label>
                         <textarea
                           rows={3}
                           value={emailKeyPoints}
@@ -2046,7 +2050,7 @@ export default function App() {
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-slate-440 font-bold block mb-1">DESIRED CALL-TO-ACTION (CTA)</label>
+                        <label className="text-[10px] text-slate-400 font-bold block mb-1">DESIRED CALL-TO-ACTION (CTA)</label>
                         <input 
                           type="text" 
                           value={emailCta} 
@@ -2065,7 +2069,7 @@ export default function App() {
                     </div>
 
                     {emailResult && (
-                      <div className="p-3.5 bg-slate-950 border border-slate-850 rounded-xl space-y-2 text-xs leading-relaxed animate-fade-in mt-3">
+                      <div className="p-3.5 bg-slate-950 border border-slate-900 rounded-xl space-y-2 text-xs leading-relaxed animate-fade-in mt-3">
                         <div className="flex justify-between text-slate-500 mb-1">
                           <span className="font-bold text-violet-500 font-mono">DRAFT COMPILED</span>
                           <button 
@@ -2073,12 +2077,12 @@ export default function App() {
                               navigator.clipboard.writeText(`Subject: ${emailResult.subjectLine}\n\n${emailResult.body}`);
                               showAlert('Email copied to clipboard!', 'success');
                             }}
-                            className="text-violet-505 font-bold hover:underline"
+                            className="text-violet-500 font-bold hover:underline"
                           >
                             Copy Draft
                           </button>
                         </div>
-                        <p className="font-semibold text-slate-101 border-b border-slate-900 pb-1.5">Subject: {emailResult.subjectLine}</p>
+                        <p className="font-semibold text-slate-100 border-b border-slate-900 pb-1.5">Subject: {emailResult.subjectLine}</p>
                         <pre className="text-[10px] font-mono whitespace-pre-wrap max-h-48 overflow-y-auto mt-2 text-slate-300">
                           {emailResult.body}
                         </pre>
@@ -2110,7 +2114,7 @@ export default function App() {
                           setAppState(prev => ({ ...prev, chatHistory: [initialWorkPilotState.chatHistory[0]] }));
                           showAlert('Conversational memory synchronized.', 'info');
                         }}
-                        className="p-1 hover:bg-slate-200/50 dark:hover:bg-slate-850 rounded transition-all text-slate-500 hover:text-rose-500"
+                        className="p-1 hover:bg-slate-200/50 dark:hover:bg-slate-900 rounded transition-all text-slate-500 hover:text-rose-500"
                         title="Clear history"
                       >
                         <RotateCcw className="h-4 w-4" />
@@ -2125,15 +2129,15 @@ export default function App() {
                           className={`flex gap-3 max-w-[85%] ${msg.role === 'user' ? 'ml-auto flex-row-reverse' : 'mr-auto'}`}
                         >
                           <div className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 font-display ${
-                            msg.role === 'user' ? 'bg-indigo-605 text-white' : 'bg-slate-900 text-violet-400 border border-slate-800'
+                            msg.role === 'user' ? 'bg-indigo-600 text-white' : 'bg-slate-900 text-violet-400 border border-slate-800'
                           }`}>
                             {msg.role === 'user' ? 'UA' : 'P'}
                           </div>
                           
                           <div className={`p-3 rounded-2xl ${
                             msg.role === 'user' 
-                              ? 'bg-gradient-to-tr from-violet-605 to-indigo-606 text-white' 
-                              : 'bg-slate-900 border border-slate-850 text-slate-300'
+                              ? 'bg-gradient-to-tr from-violet-600 to-indigo-600 text-white' 
+                              : 'bg-slate-900 border border-slate-900 text-slate-300'
                           }`}>
                             {/* Simple text with basic markdown code formats */}
                             <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -2161,7 +2165,7 @@ export default function App() {
                       <button
                         onClick={handleSendChatMessage}
                         disabled={chatLoading}
-                        className="px-5 py-2.5 bg-violet-605 text-white hover:bg-violet-750 font-bold rounded-xl transition-all"
+                        className="px-5 py-2.5 bg-violet-600 text-white hover:bg-violet-800 font-bold rounded-xl transition-all"
                       >
                         Send
                       </button>
@@ -2189,34 +2193,58 @@ export default function App() {
                     <h3 className="text-sm font-bold font-display">WorkPilot Premium Subscription</h3>
                   </div>
 
-                  <div className="p-4 bg-slate-900 border border-slate-850 rounded-xl space-y-2.5 text-xs leading-relaxed">
-                    <span className="text-[9px] font-mono bg-yellow-500/15 text-yellow-500 px-2 py-0.5 rounded font-bold uppercase">FREE DEMO MODE</span>
-                    <h4 className="text-base font-extrabold text-slate-101">Current Level: Enterprise Trial</h4>
+                  <div className="p-4 bg-slate-900 border border-slate-900 rounded-xl space-y-2.5 text-xs leading-relaxed">
+                    <span className="text-[9px] font-mono bg-yellow-500/15 text-yellow-500 px-2 py-0.5 rounded font-bold uppercase">
+                      {activePlan === 'free' ? 'FREE DEMO MODE' : 'PREMIUM ACTIVE'}
+                    </span>
+                    <h4 className="text-base font-extrabold text-slate-100">
+                      Current Level: {activePlan === 'free' ? 'Enterprise Trial' : activePlan === 'monthly' ? 'Premium Monthly' : 'AI-Pro Yearly'}
+                    </h4>
                     <p className="text-[11px] text-slate-400">Your account is synced to Vijay Pawar Enterprise License logs.</p>
                   </div>
 
                   <div className="space-y-3 text-xs leading-relaxed pt-2">
-                    <span className="font-bold text-slate-350 block">CHOOSE ALTERNATIVE PACKAGE PRESSETS</span>
-                    
-                    <div className="p-3.5 bg-slate-900 border border-slate-800 hover:border-violet-500/35 rounded-xl cursor-pointer flex justify-between items-center">
+                    <span className="font-bold text-slate-400 block">CHOOSE ALTERNATIVE PACKAGE PRESSETS</span>
+
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setSelectedPlan('monthly')}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedPlan('monthly'); }}
+                      className={`p-3.5 bg-slate-900 border rounded-xl cursor-pointer flex justify-between items-center transition-colors ${selectedPlan === 'monthly' ? 'border-violet-500 ring-1 ring-violet-500/50' : 'border-slate-800 hover:border-violet-500/35'}`}
+                    >
                       <div>
-                        <strong className="block text-slate-101">Premium Monthly Plan</strong>
+                        <strong className="block text-slate-100">Premium Monthly Plan</strong>
                         <span className="text-[10px] text-slate-500">Access full encrypted documents vault storage</span>
                       </div>
                       <span className="text-xs font-bold text-violet-400 font-mono">$19 / mo</span>
                     </div>
 
-                    <div className="p-3.5 bg-slate-900 border border-slate-800 hover:border-violet-500/35 rounded-xl cursor-pointer flex justify-between items-center">
+                    <div
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setSelectedPlan('yearly')}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedPlan('yearly'); }}
+                      className={`p-3.5 bg-slate-900 border rounded-xl cursor-pointer flex justify-between items-center transition-colors ${selectedPlan === 'yearly' ? 'border-violet-500 ring-1 ring-violet-500/50' : 'border-slate-800 hover:border-violet-500/35'}`}
+                    >
                       <div>
-                        <strong className="block text-slate-101">AI-Pro Yearly Tier</strong>
+                        <strong className="block text-slate-100">AI-Pro Yearly Tier</strong>
                         <span className="text-[10px] text-slate-500">Unlimited structural resume ATS scoring reviews</span>
                       </div>
                       <span className="text-xs font-bold text-violet-400 font-mono">$149 / yr</span>
                     </div>
 
-                    <button 
-                      onClick={() => showAlert('Payment system simulation completes. License set to premium.', 'success')}
-                      className="w-full mt-2 py-2.5 bg-violet-605 text-white hover:bg-violet-750 font-bold text-xs uppercase rounded-xl tracking-wider"
+                    <button
+                      disabled={!selectedPlan}
+                      onClick={() => {
+                        if (!selectedPlan) {
+                          showAlert('Please select a plan above first.', 'info');
+                          return;
+                        }
+                        setActivePlan(selectedPlan);
+                        showAlert(`Payment system simulation complete. License set to ${selectedPlan === 'monthly' ? 'Premium Monthly' : 'AI-Pro Yearly'}.`, 'success');
+                      }}
+                      className="w-full mt-2 py-2.5 bg-violet-600 text-white hover:bg-violet-800 disabled:opacity-40 disabled:cursor-not-allowed font-bold text-xs uppercase rounded-xl tracking-wider"
                     >
                       Process License Sync
                     </button>
@@ -2227,9 +2255,9 @@ export default function App() {
                 <div className="glass-panel p-6 space-y-4">
                   <h3 className="text-sm font-semibold font-display border-b border-slate-800 pb-1">Platform Admin Management</h3>
                   
-                  <div className="space-y-3.5 text-xs leading-relaxed text-slate-405">
+                  <div className="space-y-3.5 text-xs leading-relaxed text-slate-400">
                     <div>
-                      <span className="font-bold text-slate-150 block mb-1">Corporate Member Profile</span>
+                      <span className="font-bold text-slate-200 block mb-1">Corporate Member Profile</span>
                       <p className="text-[10px] leading-relaxed mb-3">Manually modify employee identity parameters inside the core global context.</p>
                       
                       <div className="space-y-3">
@@ -2255,14 +2283,14 @@ export default function App() {
                     </div>
 
                     <div className="pt-3 border-t border-slate-800 space-y-2">
-                      <span className="font-bold text-slate-350 block">SIMULATE NEW DATA SEED</span>
+                      <span className="font-bold text-slate-400 block">SIMULATE NEW DATA SEED</span>
                       <p className="text-[9.5px]">Force reload the standard static metrics or restore default database parameters.</p>
                       <button
                         onClick={() => {
                           setAppState(initialWorkPilotState);
                           showAlert('Workspace loaded with original templates', 'success');
                         }}
-                        className="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold border border-slate-850 rounded-lg"
+                        className="w-full py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold border border-slate-900 rounded-lg"
                       >
                         Restore Mock Factory Presets
                       </button>
@@ -2285,10 +2313,10 @@ export default function App() {
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="glass-panel-heavy p-6 max-w-md w-full space-y-4 shadow-2xl">
             <div className="flex justify-between items-center border-b border-slate-200/50 dark:border-slate-800 pb-3">
-              <h3 className="font-display font-black text-slate-101 text-base text-violet-500">Schedule Operational Metric</h3>
+              <h3 className="font-display font-black text-slate-100 text-base text-violet-500">Schedule Operational Metric</h3>
               <button 
                 onClick={() => setShowTaskModal(false)}
-                className="text-slate-401 hover:text-slate-201 p-1"
+                className="text-slate-400 hover:text-slate-200 p-1"
               >
                 <X className="h-4.5 w-4.5" />
               </button>
@@ -2347,7 +2375,7 @@ export default function App() {
 
               <button
                 type="submit"
-                className="w-full mt-2 py-3 bg-gradient-to-r from-violet-605 to-indigo-610 text-white font-bold tracking-wider uppercase rounded-xl hover:shadow-lg transition-all"
+                className="w-full mt-2 py-3 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold tracking-wider uppercase rounded-xl hover:shadow-lg transition-all"
               >
                 Log to Terminal
               </button>
