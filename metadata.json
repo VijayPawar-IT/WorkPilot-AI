@@ -1,0 +1,6 @@
+{
+  "name": "WorkPilot AI",
+  "description": "Your Personal Corporate Life Manager.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

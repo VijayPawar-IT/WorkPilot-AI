@@ -1,0 +1,67 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-slate-950: #030712;
+  --color-slate-900: #0f172a;
+  --color-slate-800: #1e293b;
+  --color-slate-700: #334155;
+  --color-slate-500: #64748b;
+  --color-slate-105: #f1f5f9;
+  --color-violet-500: #8b5cf6;
+  --color-violet-600: #7c3aed;
+  --color-emerald-500: #10b981;
+}
+
+@layer base {
+  body {
+    @apply font-sans select-none antialiased overflow-x-hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+/* Glassmorphism Classes */
+.glass-panel {
+  @apply backdrop-blur-md bg-white/75 border border-slate-200/50 dark:bg-slate-900/75 dark:border-slate-800/50 shadow-sm rounded-2xl;
+}
+
+.glass-panel-heavy {
+  @apply backdrop-blur-lg bg-white/90 border border-slate-200/80 dark:bg-slate-950/90 dark:border-slate-800 shadow-md rounded-2xl;
+}
+
+.glass-card {
+  @apply backdrop-blur-sm bg-white/40 border border-white/20 dark:bg-slate-900/40 dark:border-slate-800/30 hover:border-violet-500/30 dark:hover:border-violet-500/50 transition-all duration-300 rounded-xl;
+}
+
+.glass-input {
+  @apply backdrop-blur-sm bg-slate-100/50 border border-slate-200/60 focus:border-violet-500 focus:bg-white dark:bg-slate-800/40 dark:border-slate-800/60 dark:focus:border-violet-500 dark:focus:bg-slate-900/90 rounded-xl px-4 py-2.5 outline-none transition-all duration-200 w-full;
+}
+
+/* Scrollbar customizations */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-800 rounded-full hover:bg-slate-400 dark:hover:bg-slate-700 transition-colors;
+}
+
+/* Custom background animations */
+@keyframes morph {
+  0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+  50% { border-radius: 30% 60% 70% 30% / 50% 60% 30% 60%; }
+  100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+}
+
+.animate-morph {
+  animation: morph 8s ease-in-out infinite;
+}
