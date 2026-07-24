@@ -36,14 +36,20 @@ function getGeminiClient(): GoogleGenAI {
   return aiInstance;
 }
 
-// Models tried in order. If the primary model is overloaded (503/UNAVAILABLE)
-// or rate-limited (429), we automatically retry and fall back to the next one
+// Models tried in order. If the primary model is overloaded (503/UNAVAILABLE),
+// rate-limited (429), or unavailable for this API key/tier (404/deprecated),
+// we automatically retry transient errors and fall back to the next model
 // instead of surfacing a broken UI to the user.
-const MODEL_FALLBACK_CHAIN = ['gemini-3.5-flash', 'gemini-2.5-flash', 'gemini-2.0-flash'];
+const MODEL_FALLBACK_CHAIN = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3-flash', 'gemini-2.0-flash'];
 
-function isRetryableError(error: any): boolean {
+function isTransientError(error: any): boolean {
   const message = String(error?.message || error || '');
   return /503|UNAVAILABLE|429|RESOURCE_EXHAUSTED|overloaded|high demand/i.test(message);
+}
+
+function isModelUnavailableError(error: any): boolean {
+  const message = String(error?.message || error || '');
+  return /404|NOT_FOUND|no longer available|not found/i.test(message);
 }
 
 async function generateContentWithFallback(
@@ -59,7 +65,11 @@ async function generateContentWithFallback(
         return await ai.models.generateContent({ ...params, model });
       } catch (error: any) {
         lastError = error;
-        if (!isRetryableError(error)) {
+        if (isModelUnavailableError(error)) {
+          console.warn(`Model ${model} is unavailable for this key, trying next fallback:`, error.message);
+          break;
+        }
+        if (!isTransientError(error)) {
           throw error;
         }
         console.warn(`Model ${model} attempt ${attempt + 1} failed (retryable):`, error.message);
